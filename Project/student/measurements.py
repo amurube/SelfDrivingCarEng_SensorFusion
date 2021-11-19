@@ -47,8 +47,17 @@ class Sensor:
         # TODO Step 4: implement a function that returns True if x lies in the sensor's field of view, 
         # otherwise False.
         ############
-
-        return True
+        # transform x to sensor coordinates
+        pos_veh = np.ones((4,1))
+        pos_veh[:3] = x[:3]
+        pos_sens = self.veh_to_sens* pos_veh
+        visible = False
+        if pos_sens[0]>0: # to make sure not to divide by 0
+            alpha = np.arctan2(pos_sens[1], pos_sens[0])
+            if alpha > self.fov[0] and alpha < self.fov[1]:
+                visible = True
+                
+        return visible
         
         ############
         # END student code
@@ -70,8 +79,16 @@ class Sensor:
             # - make sure to not divide by zero, raise an error if needed
             # - return h(x)
             ############
-
-            pass
+            pos_veh = np.ones((4, 1))
+            pos_veh[0:3] = x[0:3] 
+            pos_sens = self.veh_to_sens * pos_veh
+            
+            hx = np.zeros((2,1))
+            assert (x[0] != 0.0), 'Trying to divide by 0!'
+            hx[0,0] = self.c_i - self.f_i * x[1]/x[0]
+            hx[1,0] = self.c_j - self.f_j * x[2]/x[0]
+            
+            return hx
         
             ############
             # END student code
@@ -115,7 +132,7 @@ class Sensor:
         # TODO Step 4: remove restriction to lidar in order to include camera as well
         ############
         
-        if self.name == 'lidar':
+        if self.name == 'lidar' or self.name == 'camera':
             meas = Measurement(num_frame, z, self)
             meas_list.append(meas)
         return meas_list
@@ -155,9 +172,16 @@ class Measurement:
             ############
             # TODO Step 4: initialize camera measurement including z and R 
             ############
+            self.z = np.zeros((sensor.dim_meas,1))
+            self.z[0] = z[0]
+            self.z[1] = z[1]
+            
+            self.R = np.matrix([
+                [params.sigma_cam_i**2, 0],
+                [0, params.sigma_cam_j**2]])
 
-            pass
-        
+            self.width = z[2]
+            self.length = z[3]
             ############
             # END student code
             ############ 
