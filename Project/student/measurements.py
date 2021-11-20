@@ -85,8 +85,8 @@ class Sensor:
             
             hx = np.zeros((2,1))
             assert (x[0] != 0.0), 'Trying to divide by 0!'
-            hx[0,0] = self.c_i - self.f_i * x[1]/x[0]
-            hx[1,0] = self.c_j - self.f_j * x[2]/x[0]
+            hx[0,0] = self.c_i - self.f_i * pos_sens[1]/pos_sens[0]
+            hx[1,0] = self.c_j - self.f_j * pos_sens[2]/pos_sens[0]
             
             return hx
         
